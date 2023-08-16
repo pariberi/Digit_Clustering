@@ -5,7 +5,7 @@ import torch
 
 class BaseModel(ABC):
     @abstractmethod
-    def _load_model(self, **paths) -> tuple:
+    def _load_model(self) -> tuple:
         raise NotImplementedError()
 
     @abstractmethod

@@ -6,22 +6,24 @@ from src import utils
 
 
 class SelectivePseudoLabelClustering(BaseModel):
-    def __init__(self, aes_path: str, umap_path: str, hdbscan_path: str) -> None:
-        models = self._load_model(ae=aes_path, umap=umap_path, hdbscan=hdbscan_path)
+    __trained_aes_path = '....\Autoencoders'
+    __umap_path = '.....\Umaps'
+    __hdbscan_path = '.....\Hdbscan'
+
+    def __init__(self) -> None:
+        models = self._load_model()
         self.trained_aes = models[0]
         self.umap_models = models[1]
         self.hdbscan_models = models[2]
 
     def _load_model(self, **paths) -> tuple:
-        trained_aes = utils.load_trained_aes(paths['ae'])
+        trained_aes = utils.load_trained_aes(SelectivePseudoLabelClustering.__trained_aes_path)
         umap_models = []
         hdbscan_models = []
-        path = paths['umap']
         for i in range(5):
-            umap_models.append(utils.load_pickle(f'{path}/umap{i}.npy'))
-        path = paths['hdbscan']
+            umap_models.append(utils.load_pickle(f'{SelectivePseudoLabelClustering.__umap_path}/umap{i}.npy'))
         for i in range(5):
-            hdbscan_models.append(utils.load_pickle(f'{path}/hdbscan{i}.npy'))
+            hdbscan_models.append(utils.load_pickle(f'{SelectivePseudoLabelClustering.__hdbscan_path}/hdbscan{i}.npy'))
         return trained_aes, umap_models, hdbscan_models
 
     def __build_latent_space(self, X: torch.Tensor) -> list:
@@ -44,7 +46,7 @@ class SelectivePseudoLabelClustering(BaseModel):
         for i in range(5):
             label, strengths = hdbscan.approximate_predict(self.hdbscan_model[i], umaps[i])
             labels.append(label)
-
+            
         return labels
 
     def predict(self, test_sample: torch.Tensor) -> int:

@@ -27,11 +27,7 @@ if __name__ == "__main__":
 
     X = SimpleScale.scale_tensor(img, 255.)
 
-    trained_aes_path = '..\Data\Autoencoders'
-    umap_path = '..\Data\Umaps'
-    hdbscan_path = '..\Data\Hdbscan'
-
-    model = SelectivePseudoLabelClustering(trained_aes_path, umap_path, hdbscan_path)
-    label = model.get_label(X)
+    model = SelectivePseudoLabelClustering()
+    label = model.predict(X)
 
     print(f'label of your sample is {label}')

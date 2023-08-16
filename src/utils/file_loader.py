@@ -2,8 +2,8 @@ import os
 import pickle
 
 import torch
-from torchvision.io import read_image
-
+import numpy as np
+from PIL import Image, ImageOps
 from src.exception.image_exception import ImageException
 from src.helper.neural_network import AutoEncoder
 
@@ -11,18 +11,20 @@ from src.helper.neural_network import AutoEncoder
 class FileLoader:
     @staticmethod
     def load_image_as_tensor(image_path: str) -> torch.Tensor:
-
         if not os.path.exists(image_path):
             raise ImageException('path')
         if image_path[-4:] != '.jpg' or image_path[-4:] != '.png':
             raise ImageException('format')
 
-        img = read_image(image_path)
+        img = Image.open(image_path)
+        img = ImageOps.grayscale(img)
+        img = np.array(img)
+        img = np.expand_dims(img, axis=2)
 
-        if len(list(img[0][0])) != 28:
+        if img.shape[0] != 28 or img.shape[1]:
             raise ImageException('size')
 
-        return img
+        return torch.from_numpy(img)
 
     @staticmethod
     def load_trained_aes(aes_dir_path: str) -> list:
@@ -37,7 +39,6 @@ class FileLoader:
 
     @staticmethod
     def load_pickle(path: str) -> object:
-        file = open(path, 'rb')
-        data = pickle.load(file)
-        file.close()
+        with open(path, 'rb') as handle:
+            data = pickle.load(handle)
         return data
