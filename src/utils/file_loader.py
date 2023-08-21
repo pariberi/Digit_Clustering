@@ -1,19 +1,21 @@
 import os
 import pickle
 
-import torch
 import numpy as np
+import torch
 from PIL import Image, ImageOps
+
 from src.exception.image_exception import ImageException
-from src.helper.neural_network import AutoEncoder
+from src.helper import nns
 
 
 class FileLoader:
     @staticmethod
     def load_image_as_tensor(image_path: str) -> torch.Tensor:
+        # print(f'image path: {image_path}')
         if not os.path.exists(image_path):
             raise ImageException('path')
-        if image_path[-4:] != '.jpg' or image_path[-4:] != '.png':
+        if not image_path.endswith('.jpg') and not image_path.endswith('.png'):
             raise ImageException('format')
 
         img = Image.open(image_path)
@@ -21,20 +23,23 @@ class FileLoader:
         img = np.array(img)
         img = np.expand_dims(img, axis=2)
 
-        if img.shape[0] != 28 or img.shape[1]:
+        if img.shape[0] != 28 or img.shape[1] != 28:
             raise ImageException('size')
 
-        return torch.from_numpy(img)
+        img = torch.from_numpy(img).permute(2, 0, 1)
+        return img
 
     @staticmethod
     def load_trained_aes(aes_dir_path: str) -> list:
         aes = []
         for aeid in range(5):
-            path = f'{aes_dir_path}/{aeid}.pt'
-            print('Loading trained aes from', path)
-            chkpt = torch.load(path, map_location=torch.device('cpu'))
-            revived_ae = AutoEncoder(chkpt['enc'], chkpt['dec'], aeid)
-            aes.append(revived_ae)
+            path = f'{aes_dir_path}\\model_weights{aeid}.pth'
+            # print('Loading trained aes parameter from', path)
+
+            autoencoder = nns.make_ae(aeid, torch.device('cpu'), 50, 28, 1)
+            autoencoder.load_state_dict(torch.load(path))
+
+            aes.append(autoencoder)
         return aes
 
     @staticmethod
