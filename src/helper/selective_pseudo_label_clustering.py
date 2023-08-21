@@ -3,9 +3,9 @@ import numpy as np
 import torch
 import umap.umap_ as umap
 from torch.utils import data
-from time import time
 
 from src.utils.file_loader import FileLoader
+from src.utils.logger import Logger
 from .base_model import BaseModel
 
 
@@ -15,6 +15,7 @@ class SelectivePseudoLabelClustering(BaseModel):
     __hdbscan_path = 'D:\\Digit_Clustering\\src\\assets\\hdbscans'
     __mapping_PATH = 'D:\\Digit_Clustering\\src\\assets\\mappings'
 
+    @Logger.time_logger
     def __init__(self) -> None:
         models = self._load_model()
         self.trained_aes = models[0]
@@ -23,6 +24,7 @@ class SelectivePseudoLabelClustering(BaseModel):
         self.mappings = models[3]
 
     def _load_model(self) -> tuple:
+        print('Loading models...')
         trained_aes = FileLoader.load_trained_aes(SelectivePseudoLabelClustering.__trained_aes_path)
         umap_models = []
         hdbscan_models = []
@@ -68,23 +70,12 @@ class SelectivePseudoLabelClustering(BaseModel):
         final_labels = []
         for i in range(5):
             final_labels.append(self.mappings[i][hdbscan_labels[i]])
-        print(final_labels)
+        print(f'predicted labels: {final_labels}')
         return max(final_labels, key=final_labels.count)
 
-
-    def time_logger(func):
-        def inner_func(self,test_sample):
-            start_time = time()
-            label = func(self, test_sample)
-            end_time = time()
-            total_time = int(end_time-start_time)
-            print(f'time: {total_time} seconds')
-            return label
-        return inner_func
-
-    @time_logger
+    @Logger.time_logger
     def predict(self, test_sample: torch.Tensor) -> int:
-        print("start of prediction...")
+        print("\nStart of prediction...")
         test_vectors = self.__build_latent_space(test_sample)
         test_umap = self.__get_umaps(test_vectors)
         test_hdbscan = self.__get_hdbscan_labels(test_umap)

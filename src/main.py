@@ -38,5 +38,5 @@ if __name__ == "__main__":
     model = SelectivePseudoLabelClustering()
     label = model.predict(image_dataset)
 
-    print(f'label of your sample is {label}')
+    print(f'\nFinal label of your sample is {label}')
 
