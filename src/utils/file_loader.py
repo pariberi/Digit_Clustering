@@ -1,9 +1,11 @@
 import os
 import pickle
 
+import keras
 import numpy as np
 import torch
 from PIL import Image, ImageOps
+from keras.models import load_model
 
 from src.exception.image_exception import ImageException
 from src.helper import nns
@@ -30,6 +32,25 @@ class FileLoader:
         return img
 
     @staticmethod
+    def load_image_as_ndarray(image_path: str) -> torch.Tensor:
+        # print(f'image path: {image_path}')
+        if not os.path.exists(image_path):
+            raise ImageException('path')
+        if not image_path.endswith('.jpg') and not image_path.endswith('.png'):
+            raise ImageException('format')
+
+        img = Image.open(image_path)
+        img = ImageOps.grayscale(img)
+        img = np.array(img)
+        img = np.expand_dims(img, axis=2)
+
+        if img.shape[0] != 28 or img.shape[1] != 28:
+            raise ImageException('size')
+
+        img = np.expand_dims(img, axis=0)
+        return img
+
+    @staticmethod
     def load_trained_aes(aes_dir_path: str) -> list:
         aes = []
         for aeid in range(5):
@@ -47,3 +68,8 @@ class FileLoader:
         with open(path, 'rb') as handle:
             data = pickle.load(handle)
         return data
+
+    @staticmethod
+    def load_hdf5(path: str) -> keras.engine.sequential.Sequential:
+        model = load_model(path)
+        return model
