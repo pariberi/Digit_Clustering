@@ -6,6 +6,7 @@ from torch.utils import data
 
 from src.utils.file_loader import FileLoader
 from src.utils.logger import Logger
+from src.utils.transform_dataset import TransformDataset
 from .base_model import BaseModel
 
 
@@ -74,7 +75,7 @@ class SelectivePseudoLabelClustering(BaseModel):
         return max(final_labels, key=final_labels.count)
 
     @Logger.time_logger
-    def predict(self, test_sample: torch.Tensor) -> int:
+    def predict(self, test_sample: TransformDataset) -> int:
         print("\nStart of prediction...")
         test_vectors = self.__build_latent_space(test_sample)
         test_umap = self.__get_umaps(test_vectors)
