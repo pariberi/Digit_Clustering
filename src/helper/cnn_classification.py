@@ -17,9 +17,9 @@ class CNNClassification(BaseModel):
         return FileLoader.load_hdf5(CNNClassification.__trained_cnn_model_path)
 
     @Logger.time_logger
-    def predict(self, X: np.ndarray) -> int:
+    def predict(self, test_sample: np.ndarray) -> int:
         print("\nStart of classification...")
-        results = self.model.predict(X)
+        results = self.model.predict(test_sample)
         results2 = np.argmax(results, axis=1)
 
         return results2

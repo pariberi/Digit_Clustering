@@ -8,5 +8,5 @@ class SimpleScale:
         return dataset.float().div_(number)
 
     @staticmethod
-    def scale_ndarray(dataset: np.ndarray, number: float) -> torch.Tensor:
-        return dataset / number
+    def scale_ndarray(dataset: np.ndarray, number: float) -> np.ndarray:
+        return np.divide(dataset, number)

@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from PIL import Image, ImageOps
 from keras.models import load_model
+from torch import Tensor
 
 from src.exception.image_exception import ImageException
 from src.helper import nns
@@ -13,7 +14,7 @@ from src.helper import nns
 
 class FileLoader:
     @staticmethod
-    def load_image_as_tensor(image_path: str) -> torch.Tensor:
+    def load_image_as_tensor(image_path: str) -> Tensor:
         # print(f'image path: {image_path}')
         if not os.path.exists(image_path):
             raise ImageException('path')
@@ -32,7 +33,7 @@ class FileLoader:
         return img
 
     @staticmethod
-    def load_image_as_ndarray(image_path: str) -> torch.Tensor:
+    def load_image_as_ndarray(image_path: str) -> np.ndarray:
         # print(f'image path: {image_path}')
         if not os.path.exists(image_path):
             raise ImageException('path')
